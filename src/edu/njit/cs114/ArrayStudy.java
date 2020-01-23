@@ -69,7 +69,7 @@ public class ArrayStudy {
             numPositives = 0;
 
             for (int i = 0; i < b.length; i++) {
-                if (b[i][j] > 0) {
+                if (b[i][j] >= 0) {
                     numPositives++;
                     columnSum += b[i][j];
                 }
