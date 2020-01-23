@@ -1,6 +1,4 @@
-package edu.njit.cs114.lab1;
-
-import java.util.Arrays;
+package edu.njit.cs114;
 
 /**
  * Author:
@@ -39,19 +37,24 @@ public class ArrayStudy {
             halfCol = a[i].length / 2;
             noOfNegativesInRow = 0;
 
-            /**
-             * To be completed
-             *   Loop through each column of the i-th row to update noOfNegativesInRow
-             *  If noOfNegativesInRow is at least halfCol, set removeRow[i] to true
-             */
+            for (int j = 0; j < a[i].length; j++) {
+                if (a[i][j] < 0)
+                    noOfNegativesInRow++;
+            }
 
+            if (noOfNegativesInRow >= halfCol) {
+                removeRow[i] = true;
+                noOfRowsRemoved++;
+            }
         }
         double[][] b = new double[a.length - noOfRowsRemoved][];
         int validRowIndex = 0;
-        /**
-         * To be completed
-         *  Loop through each row i of a and if removeRow[i] is false, add it to b
-         */
+        for (int i = 0; i < a.length; i++) {
+            if (!removeRow[i]) {
+                b[validRowIndex] = a[i];
+                validRowIndex++;
+            }
+        }
         return b;
     }
 
@@ -64,16 +67,20 @@ public class ArrayStudy {
         for (int j = 0; j < b[0].length; j++) {
             columnSum = 0.0;
             numPositives = 0;
-            /**
-             * To be completed
-             *  First find columnSum using non-negative values of the column
-             *   by looping through each row of the same column
-             */
+
+            for (int i = 0; i < b.length; i++) {
+                if (b[i][j] > 0) {
+                    numPositives++;
+                    columnSum += b[i][j];
+                }
+            }
+
             columnAverage = numPositives > 0 ? columnSum / numPositives : 0;
-            /**
-             *  To be completed
-             *   Now replace negative numbers of a column with the column average
-             */
+
+            for (int i = 0; i < b.length; i++)
+                if (b[i][j] < 0)
+                    b[i][j] = columnAverage;
+
         }
         return b;
     }
