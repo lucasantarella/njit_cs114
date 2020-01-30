@@ -1,8 +1,8 @@
 package edu.njit.cs114;
 
 /**
- * Author:
- * Date created: 1/24/20
+ * Author: Luca Santarella
+ * Date created: 1/30/20
  */
 public class ArrayPolynomial implements Polynomial {
 
@@ -25,56 +25,59 @@ public class ArrayPolynomial implements Polynomial {
         if (power < 0 || power > MAX_DEGREE) {
             throw new Exception("Invalid power for the term");
         }
-        /**
-         * Complete code here for lab assignment
-         */
+
+        this.coefficients[power] = coefficient;
     }
 
     /**
      * Create a new polynomial that is a copy of "another".
      * NOTE : you should use only the interface methods of Polynomial to get
-     *         the coefficients of "another"
+     * the coefficients of "another"
      *
      * @param another
      * @throws Exception when degree of another exceeds MAX_DEGREE
      */
     public ArrayPolynomial(Polynomial another) throws Exception {
-        /**
-         * Complete code here for lab assignment
-         */
+        if (another.degree() > MAX_DEGREE) {
+            throw new Exception("Invalid power for the term");
+        }
+
+        for (int i = 0; i <= another.degree(); i++)
+            this.addTerm(i, another.coefficient(i));
     }
 
     @Override
     public void addTerm(int power, double coefficient) throws Exception {
-        /**
-         * Complete code here for lab assignment
-         * Make sure you check power for validity !!
-         */
+        if (power < 0 || power > MAX_DEGREE) {
+            throw new Exception("Invalid power for the term");
+        }
+
+        this.coefficients[power] += coefficient;
     }
 
     @Override
     public void removeTerm(int power) {
-        /**
-         * Complete code here
-         * Make sure you check power for validity !!
-         */
+        if (power < 0 || power > MAX_DEGREE)
+            return;
+
+        this.coefficients[power] = 0;
     }
 
     @Override
     public double coefficient(int power) {
-        /**
-         * Complete code here for lab assignment (Modify return statement !!)
-         * Make sure you check power for validity !!
-         */
-        return 0;
+        if (power < 0 || power > MAX_DEGREE) {
+            return 0;
+        } else return this.coefficients[power];
     }
 
     @Override
     public int degree() {
-        /**
-         * Complete code here for lab assignment
-         */
-        return 0;
+        int highestDegree = 0;
+        for (int i = 0; i < this.coefficients.length; i++) {
+            if (this.coefficient(i) > 0)
+                highestDegree = i;
+        }
+        return highestDegree;
     }
 
     @Override
@@ -147,15 +150,20 @@ public class ArrayPolynomial implements Polynomial {
      */
     @Override
     public boolean equals(Object obj) {
-        /**
-         * Complete code here for lab assignment
-         * Note : Cast obj to Polynomial (not ArrayPolynomial) to check if
-         *  coefficients are the same for all the powers in the polynomial
-         */
-        return false;
+        Polynomial other = (Polynomial) obj;
+
+        if (other.degree() != this.degree())
+            return false;
+
+        for (int i = 0; i <= this.degree(); i++) {
+            if (this.coefficient(i) != other.coefficient(i))
+                return false;
+        }
+
+        return true;
     }
 
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         // Remove comments in code after you have implemented all the functions in
         // homework assignment
         Polynomial p1 = new ArrayPolynomial();
