@@ -254,8 +254,8 @@ public class ArrayPolynomial implements Polynomial {
         assert p2.degree() == 4;
         assert p2.coefficient(2) == -2.5;
         assert p2.toString().equals("5.6x^4 + 2.5x^3 - 2.5x^2 + 3.1");
-//        System.out.println("p2(1) = " + p2.evaluate(1));
-//        assert p2.evaluate(1) == 8.7;
+        System.out.println("p2(1) = " + p2.evaluate(1));
+        assert p2.evaluate(1) == 8.7;
         Polynomial p3 = new ArrayPolynomial(0, -4);
         p3.addTerm(5, 3);
         p3.addTerm(5, -1);
@@ -263,15 +263,15 @@ public class ArrayPolynomial implements Polynomial {
         assert p3.degree() == 5;
         assert p3.coefficient(5) == 2;
         assert p3.coefficient(0) == -4;
-//        System.out.println("p3(2) = " + p3.evaluate(2));
-//        assert p3.evaluate(2) == 60;
+        System.out.println("p3(2) = " + p3.evaluate(2));
+        assert p3.evaluate(2) == 60;
         Polynomial p21 = new ArrayPolynomial(p2);
         System.out.println("p21(x) = " + p21);
         assert p21.equals(p2);
-//        p21.removeTerm(4);
-//        System.out.println("p21(x) = " + p21);
-//        assert !p21.equals(p2);
-//        assert p21.coefficient(4) == 0;
+        p21.removeTerm(4);
+        System.out.println("p21(x) = " + p21);
+        assert !p21.equals(p2);
+        assert p21.coefficient(4) == 0;
         try {
             Polynomial p5 = new ArrayPolynomial(-5, 4);
             assert false;
