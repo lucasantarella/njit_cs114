@@ -1,5 +1,8 @@
 package edu.njit.cs114.tests;
 
+import edu.njit.cs114.Maze;
+import edu.njit.cs114.TwoDimGrid;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +14,7 @@ import javax.swing.JPanel;
 
 /**
  * A class to test Maze.java.
+ *
  * @author Koffman and Wolfgang
  */
 public class MazeTest extends JFrame {
@@ -67,5 +71,6 @@ public class MazeTest extends JFrame {
             JOptionPane.showMessageDialog(null, "No path - reset maze and try again");
         }
     }
+
 }
 
