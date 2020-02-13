@@ -18,7 +18,14 @@ public class LabCashRegister {
      * @throws Exception when a coin of denomination 1 does not exist
      */
     public LabCashRegister(int[] denominations) throws Exception {
-        this.denominations = denominations;
+        for (int value : denominations) {
+            if (value == 1) {
+                this.denominations = denominations;
+                return;
+            }
+        }
+
+        throw new Exception("No coin of denomination 1 exists!");
     }
 
     /**
@@ -28,9 +35,6 @@ public class LabCashRegister {
      * @return
      */
     public int minimumCoinsForChange(int value) {
-        /**
-         * Complete code here
-         */
         return minimumCoinsForChange(0, value);
     }
 
