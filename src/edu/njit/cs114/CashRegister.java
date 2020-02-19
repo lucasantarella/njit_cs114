@@ -1,6 +1,9 @@
 package edu.njit.cs114;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.stream.IntStream;
 
 /**
  * Author: Ravi Varadarajan
@@ -38,33 +41,36 @@ public class CashRegister {
      * with minimum number of coins
      */
     public int[] makeChange(int value) {
-        return makeChange(0, value, new CoinCounts(value, this.denominations, new int[this.denominations.length])).getCoins();
-    }
+        int[] result = new int[denominations.length];
+        if (value == 0)
+            return result; // recursive base case
 
-    public CoinCounts makeChange(int startDenominatedValueIndex, int value, CoinCounts coinCounts) {
-        if (value == 0 || startDenominatedValueIndex == this.denominations.length)
-            return coinCounts;
+        int runningMinimum = INFINITY; // initialize the running min couter
 
-        for (int i = startDenominatedValueIndex; i < this.denominations.length; i++) {
+        LinkedList<int[]> coins = new LinkedList<>(); // Setup a linked list to house the coins that will be used
+        for (int i = 0; i < denominations.length; i++) {
             int denomination = denominations[i];
             if (value >= denomination) {
-
-                int numOfCoins = value / denomination;
-
-                CoinCounts useIt = coinCounts.newInstance();
-                useIt.setQuantity(i, numOfCoins);
-                useIt = makeChange(i + 1, value - (numOfCoins * denomination), useIt); // use it
-
-                CoinCounts dontUseIt = makeChange(i + 1, value, coinCounts); // don't use it
-
-                if (useIt.getCoinCount() < dontUseIt.getCoinCount() || !dontUseIt.isTotalMet())
-                    coinCounts = useIt;
-                else
-                    coinCounts = dontUseIt;
+                int[] scenario = makeChange(value - denomination); // recursive call to make change for the rest
+                scenario[i]++;
+                coins.add(scenario);
             }
         }
 
-        return coinCounts;
+        for (int[] coin : coins) {
+
+            int sum = 0;
+            for (int j = 0; j < denominations.length; j++)
+                sum += coin[j];
+
+            if (sum < runningMinimum) {
+                runningMinimum = sum;
+                result = coin.clone();
+            }
+
+        }
+
+        return result;
     }
 
     /**
@@ -105,24 +111,23 @@ public class CashRegister {
 
     private static class CoinCounts {
 
-        private int desiredValue;
+        private int numOfCoins = Integer.MAX_VALUE;
 
         private int[] denominations;
 
         private int[] coins;
 
-        public CoinCounts(int desiredValue, int[] denominations, int[] coins) {
-            this.desiredValue = desiredValue;
+        public CoinCounts(int[] denominations, int[] coins) {
             this.denominations = denominations;
             this.coins = coins;
         }
 
         public int getCoinCount() {
-            return Arrays.stream(this.coins).sum();
+            return this.numOfCoins;
         }
 
         public CoinCounts newInstance() {
-            return new CoinCounts(this.desiredValue, this.denominations, this.coins.clone());
+            return new CoinCounts(this.denominations, this.coins.clone());
         }
 
         public int getQuantity(int i) {
@@ -131,26 +136,15 @@ public class CashRegister {
 
         public void setQuantity(int i, int quantity) {
             this.coins[i] = quantity;
+            updateCoinCount();
         }
 
         public int[] getCoins() {
             return this.coins;
         }
 
-        public int getDesiredValue() {
-            return desiredValue;
-        }
-
-        public int getTotalValue() {
-            int total = 0;
-            for (int i = 0; i < this.denominations.length; i++) {
-                total += this.denominations[i] * this.coins[i];
-            }
-            return total;
-        }
-
-        public boolean isTotalMet() {
-            return this.getTotalValue() == this.getDesiredValue();
+        private void updateCoinCount() {
+            this.numOfCoins = Arrays.stream(this.coins).sum();
         }
 
     }
