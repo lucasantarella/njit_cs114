@@ -45,7 +45,7 @@ public class CashRegister {
         if (value == 0)
             return result; // recursive base case
 
-        int runningMinimum = INFINITY; // initialize the running min couter
+        int runningMinimum = INFINITY; // initialize the running min counter
 
         LinkedList<int[]> coins = new LinkedList<>(); // Setup a linked list to house the coins that will be used
         for (int i = 0; i < denominations.length; i++) {
