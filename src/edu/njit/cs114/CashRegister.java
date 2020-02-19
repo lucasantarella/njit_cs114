@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Author: Ravi Varadarajan
@@ -52,25 +53,25 @@ public class CashRegister {
             int denomination = denominations[i];
             if (value >= denomination) {
                 int[] scenario = makeChange(value - denomination); // recursive call to make change for the rest
-                scenario[i]++;
-                coins.add(scenario);
+                scenario[i]++; // increment the coin count
+                coins.add(scenario); // store the scenario
             }
         }
 
+        int sum;
         for (int[] coin : coins) {
-
-            int sum = 0;
-            for (int j = 0; j < denominations.length; j++)
-                sum += coin[j];
-
-            if (sum < runningMinimum) {
-                runningMinimum = sum;
-                result = coin.clone();
+            sum = countCoins(coin); // count the number of coins
+            if (runningMinimum > sum) {
+                runningMinimum = sum; // find the lowest coin count
+                result = coin.clone(); // set the result to corresponding scenario result
             }
-
         }
 
         return result;
+    }
+
+    public static int countCoins(int[] coins) {
+        return IntStream.of(coins).sum();
     }
 
     /**
