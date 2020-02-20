@@ -1,5 +1,7 @@
 package edu.njit.cs114;
 
+import java.util.Arrays;
+
 /**
  * Author: Ravi Varadarajan
  * Date created: 2/17/20
@@ -33,10 +35,15 @@ public class DynamicIntArray {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
         }
-        /**
-         * Complete code here
-         */
+
+        this.size++;
+        if (this.size > this.arr.length)
+            this.arr = grow(this.size);
+        Integer[] afterElements = Arrays.copyOfRange(this.arr, index, this.arr.length);
+        System.arraycopy(afterElements, 0, this.arr, index + 1, afterElements.length - 1);
+        this.arr[index] = elem;
     }
+
 
     /**
      * Append element to the end of the array
@@ -44,9 +51,27 @@ public class DynamicIntArray {
      * @param elem
      */
     public void add(int elem) {
-        /**
-         * Complete code here
-         */
+        int oldEnd = this.size();
+        this.size++;
+        if (this.size > this.arr.length)
+            this.arr = grow(this.size);
+        this.arr[oldEnd] = elem;
+    }
+
+    private Integer[] grow(int requiredCapacity) {
+        int newCapacity = calculateNewCapacity(requiredCapacity);
+        this.nCopies++;
+        return Arrays.copyOf(this.arr, newCapacity);
+    }
+
+    /**
+     * @param minRequiredCapacity The size required to grow to.
+     * @return The new buffer size.
+     */
+    private int calculateNewCapacity(int minRequiredCapacity) {
+        // overflow-conscious code
+        int oldCapacity = this.arr.length;
+        return oldCapacity + oldCapacity;
     }
 
     /**
@@ -61,10 +86,9 @@ public class DynamicIntArray {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
         }
-        /**
-         * Complete code here
-         */
-        return 0;
+        int oldValue = this.arr[index];
+        this.arr[index] = elem;
+        return oldValue;
     }
 
     /**
