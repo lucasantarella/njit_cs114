@@ -40,13 +40,12 @@ public class DynamicIntArray {
     }
 
     public void insert(int index, int elem) {
-        this.size++;
-        if (this.size > this.arr.length)
+        if (this.size + 1 > this.arr.length)
             this.arr = grow();
 
-        Integer[] afterElements = Arrays.copyOfRange(this.arr, index, this.arr.length);
-        System.arraycopy(afterElements, 0, this.arr, index + 1, afterElements.length - 1);
-        nCopies += this.arr.length - (index + 1);
+        System.arraycopy(this.arr, index, this.arr, index + 1, this.arr.length - 1 - index);
+
+        this.size++;
         this.arr[index] = elem;
     }
 
@@ -82,12 +81,14 @@ public class DynamicIntArray {
         return oldCapacity / 2;
     }
 
+    /**
+     * @return The new buffer size.
+     */
     private Integer[] shrink() {
         int newCapacity = calculateNewShrunkCapacity();
-        this.nCopies += this.size;
+        this.nCopies += this.size - 1;
         return Arrays.copyOf(this.arr, newCapacity);
     }
-
 
     /**
      * Set the element at specified index position replacing any previous value
@@ -132,13 +133,14 @@ public class DynamicIntArray {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
         }
-        this.size--;
-        if (this.size <= (this.arr.length / 4))
+
+        if (this.size - 1 <= (this.arr.length / 4))
             this.arr = shrink();
+
         int result = this.arr[index];
-        Integer[] afterElements = Arrays.copyOfRange(this.arr, index + 1, this.arr.length);
-        System.arraycopy(afterElements, 0, this.arr, index, afterElements.length);
-        nCopies += this.size;
+        System.arraycopy(this.arr, index + 1, this.arr, index, this.arr.length - index - 1);
+
+        this.size--;
         return result;
     }
 
