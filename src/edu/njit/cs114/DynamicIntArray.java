@@ -36,9 +36,14 @@ public class DynamicIntArray {
             throw new IndexOutOfBoundsException("Invalid index");
         }
 
+        this.insert(index, elem);
+    }
+
+    public void insert(int index, int elem) {
         this.size++;
         if (this.size > this.arr.length)
-            this.arr = grow(this.size);
+            this.arr = grow();
+
         Integer[] afterElements = Arrays.copyOfRange(this.arr, index, this.arr.length);
         System.arraycopy(afterElements, 0, this.arr, index + 1, afterElements.length - 1);
         nCopies += this.arr.length - (index + 1);
@@ -52,28 +57,37 @@ public class DynamicIntArray {
      * @param elem
      */
     public void add(int elem) {
-        int oldEnd = this.size();
-        this.size++;
-        if (this.size > this.arr.length)
-            this.arr = grow(this.size);
-        this.arr[oldEnd] = elem;
+        this.insert(this.size, elem);
     }
 
-    private Integer[] grow(int requiredCapacity) {
-        int newCapacity = calculateNewCapacity(requiredCapacity);
+    /**
+     * @return The new buffer size.
+     */
+    private int calculateNewGrowthCapacity() {
+        int oldCapacity = this.arr.length;
+        return oldCapacity + oldCapacity;
+    }
+
+    private Integer[] grow() {
+        int newCapacity = calculateNewGrowthCapacity();
         this.nCopies += this.arr.length;
         return Arrays.copyOf(this.arr, newCapacity);
     }
 
     /**
-     * @param minRequiredCapacity The size required to grow to.
      * @return The new buffer size.
      */
-    private int calculateNewCapacity(int minRequiredCapacity) {
-        // overflow-conscious code
+    private int calculateNewShrunkCapacity() {
         int oldCapacity = this.arr.length;
-        return oldCapacity + oldCapacity;
+        return oldCapacity / 2;
     }
+
+    private Integer[] shrink() {
+        int newCapacity = calculateNewShrunkCapacity();
+        this.nCopies += this.size;
+        return Arrays.copyOf(this.arr, newCapacity);
+    }
+
 
     /**
      * Set the element at specified index position replacing any previous value
@@ -118,10 +132,14 @@ public class DynamicIntArray {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Invalid index");
         }
-        /**
-         * Complete code here
-         */
-        return 0; // to be removed once code is completed
+        this.size--;
+        if (this.size <= (this.arr.length / 4))
+            this.arr = shrink();
+        int result = this.arr[index];
+        Integer[] afterElements = Arrays.copyOfRange(this.arr, index + 1, this.arr.length);
+        System.arraycopy(afterElements, 0, this.arr, index, afterElements.length);
+        nCopies += this.size;
+        return result;
     }
 
     /**
@@ -134,10 +152,7 @@ public class DynamicIntArray {
         if (size == 0) {
             throw new Exception("Array is empty");
         }
-        /**
-         * Complete code here
-         */
-        return 0; // to be removed once code is completed
+        return this.remove(this.size - 1);
     }
 
     /**
@@ -185,22 +200,21 @@ public class DynamicIntArray {
         System.out.println("old value at index 3 after replacing it with 25 = " + arr.set(3, 25));
         System.out.println("Element at position 2 = " + arr.get(2));
         System.out.println("array of size " + arr.size() + " : " + arr);
- /*     Uncomment these for homework 4
         System.out.println("Removed element at position 0 = " + arr.remove(0));
-        System.out.println("array of size " + arr.size()+ " : " + arr);
+        System.out.println("array of size " + arr.size() + " : " + arr);
         System.out.println("Removed element at position 2 = " + arr.remove(2));
-        System.out.println("array of size " + arr.size()+ " : " + arr);
+        System.out.println("array of size " + arr.size() + " : " + arr);
         System.out.println("Removed element at position 2 = " + arr.remove(2));
-        System.out.println("array of size " + arr.size()+ " : " + arr);
+        System.out.println("array of size " + arr.size() + " : " + arr);
         System.out.println("Removed element at end = " + arr.remove());
-        System.out.println("array of size " + arr.size()+ " : " + arr);
+        System.out.println("array of size " + arr.size() + " : " + arr);
         System.out.println("Removed element at end = " + arr.remove());
-        System.out.println("array of size " + arr.size()+ " : " + arr);
+        System.out.println("array of size " + arr.size() + " : " + arr);
         arr.add(67);
         arr.add(-14);
         arr.add(15);
-        System.out.println("array of size " + arr.size()+ " : " + arr);
- */
+        System.out.println("array of size " + arr.size() + " : " + arr);
+
         int[] nItemsArr = new int[]{0, 100000, 200000, 400000, 800000, 1600000, 3200000};
         DynamicIntArray arr1 = new DynamicIntArray();
         long totalTime = 0;
@@ -216,19 +230,19 @@ public class DynamicIntArray {
             System.out.println("total time(ms) for inserting = " + nItemsArr[k] + " items = " +
                     +totalTime);
         }
-        /* Uncomment these for homework 4
+
         totalTime = 0;
-        for (int k=1; k < nItemsArr.length; k++) {
-            for (int i = 0; i < nItemsArr[k]-nItemsArr[k-1]; i++) {
+        for (int k = 1; k < nItemsArr.length; k++) {
+            for (int i = 0; i < nItemsArr[k] - nItemsArr[k - 1]; i++) {
                 long startTime = System.currentTimeMillis();
                 arr1.remove();
                 long stopTime = System.currentTimeMillis();
                 totalTime += (stopTime - startTime);
             }
             System.out.println("total time(ms) for deleting = " + nItemsArr[k] + " items = " +
-                    + totalTime);
+                    +totalTime);
         }
-         */
+
     }
 
 }
