@@ -41,6 +41,7 @@ public class DynamicIntArray {
             this.arr = grow(this.size);
         Integer[] afterElements = Arrays.copyOfRange(this.arr, index, this.arr.length);
         System.arraycopy(afterElements, 0, this.arr, index + 1, afterElements.length - 1);
+        nCopies += this.arr.length - (index + 1);
         this.arr[index] = elem;
     }
 
@@ -60,7 +61,7 @@ public class DynamicIntArray {
 
     private Integer[] grow(int requiredCapacity) {
         int newCapacity = calculateNewCapacity(requiredCapacity);
-        this.nCopies++;
+        this.nCopies += this.arr.length;
         return Arrays.copyOf(this.arr, newCapacity);
     }
 
