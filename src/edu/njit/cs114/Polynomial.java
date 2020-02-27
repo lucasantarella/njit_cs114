@@ -1,5 +1,7 @@
 package edu.njit.cs114;
 
+import java.util.Iterator;
+
 /**
  * Author: Ravi Varadarajan
  * Date created: 1/24/20
@@ -8,8 +10,8 @@ public interface Polynomial {
 
     /**
      * Returns coefficient of the term with 'power'
-     * @param power int
-     * @return double
+     * @param power
+     * @return
      */
     public double coefficient(int power);
 
@@ -31,7 +33,7 @@ public interface Polynomial {
      * Remove the term corresponding to the power from the polynomial
      * @param power
      */
-    public void removeTerm(int power);
+    public PolynomialTerm removeTerm(int power);
 
     /**
      * Returns evaluation of the polynomial at 'point'
@@ -60,5 +62,11 @@ public interface Polynomial {
      * @return
      */
     public Polynomial multiply(Polynomial p);
+
+    /**
+     * Get polynomial terms with non-zero coefficients in decreasing order of power
+     * @return
+     */
+    public Iterator<PolynomialTerm> getIterator();
 
 }
