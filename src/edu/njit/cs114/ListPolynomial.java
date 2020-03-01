@@ -226,7 +226,7 @@ public class ListPolynomial extends AbstractPolynomial {
             Iterator<PolynomialTerm> iter = p.getIterator();
             while (iter.hasNext()) {
                 PolynomialTerm term = iter.next();
-                result.addTerm(term.getPower(), (-1) * term.getCoefficient());
+                result.addTerm(term.getPower(), (-1) * term.getCoefficient()); // Use the same addTerm function, but multiply by -1 to subtract the coefficient
             }
         } catch (Exception e) {
             e.printStackTrace();
