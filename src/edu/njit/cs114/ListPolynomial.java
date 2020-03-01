@@ -116,14 +116,19 @@ public class ListPolynomial extends AbstractPolynomial {
             // Just add the term to the beginning
             PolynomialTerm term = new PolynomialTerm(coefficient, power);
             term.setLeadingTerm(true);
-            termList.get(0).setLeadingTerm(false); // Set the current leading term to no longer
+            if (this.termList.size() > 0)
+                termList.get(0).setLeadingTerm(false); // Set the current leading term to no longer leading
             termList.add(0, term);
         } else {
             Iterator<PolynomialTerm> iter = this.getIterator();
             while (iter.hasNext()) {
                 PolynomialTerm term = iter.next();
                 if (term.getPower() == power) {
-                    termList.set(termList.indexOf(term), new PolynomialTerm(term.getCoefficient() + coefficient, power));
+                    double newCoefficient = term.getCoefficient() + coefficient;
+                    if (newCoefficient != 0)
+                        termList.set(termList.indexOf(term), new PolynomialTerm(newCoefficient, power));
+                    else
+                        termList.remove(term); // If the sum of the new coefficients is 0, then it's no longer a term
                     return;
                 }
 
@@ -185,10 +190,23 @@ public class ListPolynomial extends AbstractPolynomial {
      */
     @Override
     public Polynomial add(Polynomial p) {
-        /**
-         * Complete the code
-         */
-        return null;
+        // Setup result variable
+        Polynomial result = null;
+        try {
+            result = new ListPolynomial(this);
+
+            // Iterate over all the terms from the highest degree
+            Iterator<PolynomialTerm> iter = p.getIterator();
+            while (iter.hasNext()) {
+                PolynomialTerm term = iter.next();
+                result.addTerm(term.getPower(), term.getCoefficient());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // return result
+        return result;
     }
 
     /**
@@ -199,10 +217,23 @@ public class ListPolynomial extends AbstractPolynomial {
      */
     @Override
     public Polynomial subtract(Polynomial p) {
-        /**
-         * Complete the code
-         */
-        return null;
+        // Setup result variable
+        Polynomial result = null;
+        try {
+            result = new ListPolynomial(this);
+
+            // Iterate over all the terms from the highest degree
+            Iterator<PolynomialTerm> iter = p.getIterator();
+            while (iter.hasNext()) {
+                PolynomialTerm term = iter.next();
+                result.addTerm(term.getPower(), (-1) * term.getCoefficient());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // return result
+        return result;
     }
 
     /**
@@ -213,10 +244,28 @@ public class ListPolynomial extends AbstractPolynomial {
      */
     @Override
     public Polynomial multiply(Polynomial p) {
-        /**
-         * Complete the code
-         */
-        return null;
+        // Setup result variable
+        Polynomial result = new ListPolynomial();
+
+        // Iterate over all the terms from the highest degree
+        Iterator<PolynomialTerm> iter = this.getIterator();
+        while (iter.hasNext()) {
+            PolynomialTerm term = iter.next();
+            // Iterate over all the terms of the other polynomial
+            Iterator<PolynomialTerm> otherIter = p.getIterator();
+            while (otherIter.hasNext()) {
+                PolynomialTerm otherTerm = otherIter.next();
+                // value += c (x ^ p)
+                try {
+                    result.addTerm(term.getPower() + otherTerm.getPower(), (term.getCoefficient() * otherTerm.getCoefficient()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // return result
+        return result;
     }
 
     @Override
@@ -229,8 +278,8 @@ public class ListPolynomial extends AbstractPolynomial {
         Polynomial p1 = new ListPolynomial();
         System.out.println("p1(x) = " + p1);
         assert p1.degree() == 0;
-        //       assert p1.coefficient(0) == 0;
-        //       assert p1.coefficient(2) == 0;
+        assert p1.coefficient(0) == 0;
+        assert p1.coefficient(2) == 0;
         assert p1.equals(new ListPolynomial());
         Polynomial p2 = new ListPolynomial(4, 5.6);
         p2.addTerm(0, 3.1);
@@ -238,27 +287,27 @@ public class ListPolynomial extends AbstractPolynomial {
         p2.addTerm(2, -2.5);
         System.out.println("p2(x) = " + p2);
         assert p2.degree() == 4;
-//        assert p2.coefficient(2) == -2.5;
+        assert p2.coefficient(2) == -2.5;
         assert p2.toString().equals("5.6x^4 + 2.5x^3 - 2.5x^2 + 3.1");
-//        System.out.println("p2(1) = " + p2.evaluate(1));
-//        assert p2.evaluate(1) == 8.7;
+        System.out.println("p2(1) = " + p2.evaluate(1));
+        assert p2.evaluate(1) == 8.7;
         Polynomial p3 = new ListPolynomial(0, -4);
         p3.addTerm(5, 3);
         p3.addTerm(5, -1);
         System.out.println("p3(x) = " + p3);
         assert p3.degree() == 5;
-//        assert p3.coefficient(5) == 2;
-//        assert p3.coefficient(0) == -4;
-//        System.out.println("p3(2) = " + p3.evaluate(2));
-//        assert p3.evaluate(2) == 60;
+        assert p3.coefficient(5) == 2;
+        assert p3.coefficient(0) == -4;
+        System.out.println("p3(2) = " + p3.evaluate(2));
+        assert p3.evaluate(2) == 60;
         Polynomial p21 = new ListPolynomial(p2);
         System.out.println("p21(x) = " + p21);
         assert p21.equals(p2);
-        //       p21.removeTerm(4);
-        //       System.out.println("p21(x) = " + p21);
-//        assert !p21.equals(p2);
-//        assert p21.coefficient(4) == 0;
-//        System.out.println("p2(x) = " + p2);
+        p21.removeTerm(4);
+        System.out.println("p21(x) = " + p21);
+        assert !p21.equals(p2);
+        assert p21.coefficient(4) == 0;
+        System.out.println("p2(x) = " + p2);
         try {
             Polynomial p5 = new ListPolynomial(-5, 4);
             assert false;
@@ -266,21 +315,22 @@ public class ListPolynomial extends AbstractPolynomial {
             // Exception expected
             assert true;
         }
-//        System.out.println("p2(x) + p3(x) = " + p2.add(p3));
-//        Polynomial result = p2.add(p3);
-//        assert result.degree() == 5;
-//        assert Math.abs(result.coefficient(5) - 2) <= 0.0001;;
-//        System.out.println("p2(x) - p3(x) = " +p2.subtract(p3));
-//        result = p2.subtract(p3);
-//        assert result.degree() == 5;
-//        assert Math.abs(result.coefficient(5) - -2) <= 0.0001;
-//        assert Math.abs(result.coefficient(0) - 7.1) <= 0.0001;
-//        System.out.println("p2(x) * p3(x) = " +p2.multiply(p3));
-//        result = p2.multiply(p3);
-//        assert result.degree() == 9;
-//        assert Math.abs(result.coefficient(9) - 11.2) <= 0.0001;
-//        assert Math.abs(result.coefficient(5) - 6.2) <= 0.0001;
-//        assert Math.abs(result.coefficient(0) - -12.4) <= 0.0001;
-//        assert Math.abs(p2.evaluate(1) * p3.evaluate(1) - result.evaluate(1)) <= 0.0001;
+        System.out.println("p2(x) + p3(x) = " + p2.add(p3));
+        Polynomial result = p2.add(p3);
+        assert result.degree() == 5;
+        assert Math.abs(result.coefficient(5) - 2) <= 0.0001;
+        ;
+        System.out.println("p2(x) - p3(x) = " + p2.subtract(p3));
+        result = p2.subtract(p3);
+        assert result.degree() == 5;
+        assert Math.abs(result.coefficient(5) - -2) <= 0.0001;
+        assert Math.abs(result.coefficient(0) - 7.1) <= 0.0001;
+        System.out.println("p2(x) * p3(x) = " + p2.multiply(p3));
+        result = p2.multiply(p3);
+        assert result.degree() == 9;
+        assert Math.abs(result.coefficient(9) - 11.2) <= 0.0001;
+        assert Math.abs(result.coefficient(5) - 6.2) <= 0.0001;
+        assert Math.abs(result.coefficient(0) - -12.4) <= 0.0001;
+        assert Math.abs(p2.evaluate(1) * p3.evaluate(1) - result.evaluate(1)) <= 0.0001;
     }
 }
