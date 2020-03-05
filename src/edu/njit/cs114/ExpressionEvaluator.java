@@ -68,11 +68,12 @@ public class ExpressionEvaluator {
                 stack.push(token);
             if (token instanceof OperatorToken) {
                 if (stack.size() < 2)
-                    throw new Exception("Invalid postfix expression");
+                    throw new Exception("Insufficient number of operands");
                 OperandToken x = (OperandToken) stack.pop();
                 OperandToken y = (OperandToken) stack.pop();
                 if (x == null || y == null)
-                    throw new Exception("Invalid postfix expression");
+                    throw new Exception("Invalid operands");
+
                 OperandToken newToken = null;
                 switch ((OperatorToken) token) {
                     // Exponent y^x
