@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 
+import static edu.njit.cs114.OperatorToken.*;
+
 /**
  * Author: Ravi Varadarajan
  * Date created: 3/2/20
@@ -25,7 +27,7 @@ public class ExpressionEvaluator {
             if (str1.isEmpty()) {
                 continue;
             }
-            OperatorToken operToken = OperatorToken.opType(str1);
+            OperatorToken operToken = opType(str1);
             expr.add(operToken == null ? new OperandToken(str1) : operToken);
         }
         return expr;
@@ -71,26 +73,28 @@ public class ExpressionEvaluator {
                 OperandToken y = (OperandToken) stack.pop();
                 if (x == null || y == null)
                     throw new Exception("Invalid postfix expression");
-                OperandToken newToken;
-                switch (((OperatorToken) token).symbol) {
+                OperandToken newToken = null;
+                switch ((OperatorToken) token) {
                     // Exponent y^x
-                    case "**":
+                    case EXP:
                         newToken = new OperandToken(Math.pow(y.getValue(), x.getValue()));
                         break;
                     // Multiplication - y * x
-                    case "*":
+                    case MULTIPLY:
                         newToken = new OperandToken(y.getValue() * x.getValue());
                         break;
                     // Division - y / x
-                    case "/":
+                    case DIVIDE:
                         newToken = new OperandToken(y.getValue() / x.getValue());
                         break;
                     // Subtraction - y - x
-                    case "-":
+                    case SUBTRACT:
                         newToken = new OperandToken(y.getValue() - x.getValue());
                         break;
                     // Addition - y + x
-                    case "+":
+                    case OPENPAR:
+                        break;
+                    case ADD:
                         newToken = new OperandToken(y.getValue() + x.getValue());
                         break;
                     // Default - throw error
