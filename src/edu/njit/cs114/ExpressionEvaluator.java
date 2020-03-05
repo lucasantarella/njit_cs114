@@ -107,6 +107,9 @@ public class ExpressionEvaluator {
             }
         }
 
+        if (stack.size() != 1)
+            throw new Exception("Invalid number of operators");
+
         ExpressionToken result = stack.pop();
         if (!(result instanceof OperandToken))
             throw new Exception("Invalid postfix expression");
