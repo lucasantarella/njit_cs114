@@ -3,6 +3,7 @@ package edu.njit.cs114;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 /**
  * Author: Ravi Varadarajan
@@ -12,12 +13,13 @@ public class ExpressionEvaluator {
 
     /**
      * Parse an expression into a list of operator and operand tokens
+     *
      * @param str
      * @return
      */
     public static List<ExpressionToken> parseExpr(String str) {
         List<ExpressionToken> expr = new ArrayList<>();
-        String [] strTokList = str.split("\\s+");
+        String[] strTokList = str.split("\\s+");
         for (String strTok : strTokList) {
             String str1 = strTok.trim();
             if (str1.isEmpty()) {
@@ -32,11 +34,12 @@ public class ExpressionEvaluator {
     /**
      * Convert Infix expression given as a list of operator and operand tokens to
      * a postfix expression as a list of operator and operand tokens
+     *
      * @param infixExpr
      * @return
      * @throws Exception when the expression is not valid
-     *    such as insufficient number of operators or operands e.g. 4 * 2 5, 4 * 2 +
-     *    or not having balanced parentheses e.g. (4 * ( 5 + 3 )
+     *                   such as insufficient number of operators or operands e.g. 4 * 2 5, 4 * 2 +
+     *                   or not having balanced parentheses e.g. (4 * ( 5 + 3 )
      */
     public static List<ExpressionToken> convertToPostFix(List<ExpressionToken> infixExpr) throws Exception {
         /**
@@ -49,21 +52,66 @@ public class ExpressionEvaluator {
     /**
      * Evaluate post fix expression given as a list of operator and operand tokens
      * and return the result
+     *
      * @param postfixExpr
      * @return
      * @throws Exception when the expression is not valid
-     *      such as insufficient number of operators or operands e.g. 4 5 2 *, 4 *
+     *                   such as insufficient number of operators or operands e.g. 4 5 2 *, 4 *
      */
     public static double postFixEval(List<ExpressionToken> postfixExpr) throws Exception {
-        /**
-         * Complete this code for lab
-         * After completing the code here, remove the following return statement
-         */
-        return 0;
+        Stack<ExpressionToken> stack = new Stack<>();
+
+        for (ExpressionToken token : postfixExpr) {
+            if (token instanceof OperandToken)
+                stack.push(token);
+            if (token instanceof OperatorToken) {
+                if (stack.size() < 2)
+                    throw new Exception("Invalid postfix expression");
+                OperandToken x = (OperandToken) stack.pop();
+                OperandToken y = (OperandToken) stack.pop();
+                if (x == null || y == null)
+                    throw new Exception("Invalid postfix expression");
+                OperandToken newToken;
+                switch (((OperatorToken) token).symbol) {
+                    // Exponent y^x
+                    case "**":
+                        newToken = new OperandToken(Math.pow(y.getValue(), x.getValue()));
+                        break;
+                    // Multiplication - y * x
+                    case "*":
+                        newToken = new OperandToken(y.getValue() * x.getValue());
+                        break;
+                    // Division - y / x
+                    case "/":
+                        newToken = new OperandToken(y.getValue() / x.getValue());
+                        break;
+                    // Subtraction - y - x
+                    case "-":
+                        newToken = new OperandToken(y.getValue() - x.getValue());
+                        break;
+                    // Addition - y + x
+                    case "+":
+                        newToken = new OperandToken(y.getValue() + x.getValue());
+                        break;
+                    // Default - throw error
+                    default:
+                        throw new Exception("Operator token " + ((OperatorToken) token).symbol + " not allowed for postfix evaluation");
+                }
+
+                stack.push(newToken); // Add result operand to the stack
+            }
+        }
+
+        ExpressionToken result = stack.pop();
+        if (!(result instanceof OperandToken))
+            throw new Exception("Invalid postfix expression");
+
+        return ((OperandToken) result).getValue();
     }
 
     /**
      * Evaluate an infix expression string using postfix
+     *
      * @param str
      * @return
      * @throws Exception when the expression is not valid (e.g 2 + 3 5)
@@ -74,6 +122,7 @@ public class ExpressionEvaluator {
 
     /**
      * Evaluate an infix expression string directly
+     *
      * @param str
      * @return
      * @throws Exception
@@ -86,7 +135,7 @@ public class ExpressionEvaluator {
         return 0;
     }
 
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
  /*       Scanner scanner = new Scanner(System.in);
         String str = null;
         while (!(str = scanner.nextLine()).isEmpty()) {
