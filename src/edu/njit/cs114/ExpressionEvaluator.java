@@ -1,9 +1,6 @@
 package edu.njit.cs114;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 import static edu.njit.cs114.OperatorToken.*;
 
@@ -44,11 +41,51 @@ public class ExpressionEvaluator {
      *                   or not having balanced parentheses e.g. (4 * ( 5 + 3 )
      */
     public static List<ExpressionToken> convertToPostFix(List<ExpressionToken> infixExpr) throws Exception {
-        /**
-         * Complete the code here only for homework.
-         * After completing the code here, remove the following return statement
-         */
-        return null;
+        Stack<OperatorToken> stack = new Stack<>();
+        Stack<ExpressionToken> result = new Stack<>();
+
+        for (ExpressionToken token : infixExpr) {
+            if (token instanceof OperandToken)
+                result.push(token);
+            else if (token instanceof OperatorToken) {
+                switch ((OperatorToken) token) {
+                    case EXP:
+                    case MULTIPLY:
+                    case DIVIDE:
+                    case SUBTRACT:
+                    case ADD:
+                        while (!stack.isEmpty() && stack.peek().precedence >= ((OperatorToken) token).precedence) { // Compare precedence and sort the operators
+                            if (stack.peek() == OPENPAR) // Check for balance
+                                throw new Exception("Invalid infix expression");
+                            result.push(stack.pop());
+                        }
+                        stack.push((OperatorToken) token); // add the current operator
+                        break;
+                    case OPENPAR:
+                        stack.push((OperatorToken) token); // put it onto the stack for use later
+                        break;
+                    case CLOSEDPAR:
+                        while (!stack.isEmpty() && stack.peek() != OPENPAR) // add all operators to the result
+                            result.push(stack.pop());
+                        if (!stack.isEmpty() && stack.peek() != OPENPAR)
+                            throw new Exception("Unbalanced parenthesis in infix expression");
+                        else
+                            stack.pop(); // Pop the open parenthesis off the operator stack
+                        break;
+                    // Default - throw error
+                    default:
+                        throw new Exception("Operator token " + ((OperatorToken) token).symbol + " not allowed for postfix evaluation");
+                }
+            } else
+                throw new Exception("Invalid expression");
+        }
+
+        while (!stack.isEmpty()) {
+            if (stack.peek() == OPENPAR)
+                throw new Exception("Unbalanced parenthesis in infix expression");
+            result.push(stack.pop());
+        }
+        return result;
     }
 
     /**
@@ -66,7 +103,7 @@ public class ExpressionEvaluator {
         for (ExpressionToken token : postfixExpr) {
             if (token instanceof OperandToken)
                 stack.push(token);
-            if (token instanceof OperatorToken) {
+            else if (token instanceof OperatorToken) {
                 if (stack.size() < 2)
                     throw new Exception("Insufficient number of operands");
                 OperandToken x = (OperandToken) stack.pop();
@@ -93,12 +130,12 @@ public class ExpressionEvaluator {
                         newToken = new OperandToken(y.getValue() - x.getValue());
                         break;
                     // Addition - y + x
-                    case OPENPAR:
-                        break;
                     case ADD:
                         newToken = new OperandToken(y.getValue() + x.getValue());
                         break;
                     // Default - throw error
+                    case OPENPAR:
+                    case CLOSEDPAR:
                     default:
                         throw new Exception("Operator token " + ((OperatorToken) token).symbol + " not allowed for postfix evaluation");
                 }
@@ -154,41 +191,41 @@ public class ExpressionEvaluator {
 //                convertToPostFix(parseExpr("-6.5"))));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f", "-6.5",
                 postFixEval(parseExpr("-6.5"))));
-//        System.out.println(String.format("%s evaluated as %.4f", "-6.5",
-//                eval("-6.5")));
-//        System.out.println(String.format("postfix notation for %s : %s", " 5 * -2",
-//                convertToPostFix(parseExpr(" 5 * -2"))));
+        System.out.println(String.format("%s evaluated as %.4f", "-6.5",
+                eval("-6.5")));
+        System.out.println(String.format("postfix notation for %s : %s", " 5 * -2",
+                convertToPostFix(parseExpr(" 5 * -2"))));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f", " 5 -2 *",
                 postFixEval(parseExpr(" 5 -2 *"))));
-//        System.out.println(String.format("%s evaluated as %.4f", " 5 * -2",
-//                eval(" 5 * -2")));
-//        System.out.println(String.format("postfix notation for %s : %s", "( 4 + -2 ) * 7",
-//                convertToPostFix(parseExpr("( 4 + -2 ) * 7"))));
-//        System.out.println(String.format("%s evaluated as %.4f", "( 4 + -2 ) * 7",
-//                eval("( 4 + -2 ) * 7")));
-//        System.out.println(String.format("postfix notation for %s : %s", " 4 * ( 3 - 2 ) ) ** -2 ",
-//                convertToPostFix(parseExpr(" 4 * ( 3 - 2 ) ) ** -2 "))));
-//        System.out.println(String.format("%s evaluated as %.4f", " 4 * ( 3 - 2 ) ) ** -2",
-//                   eval(" 4 * ( 3 - 2 ) ) ** -2")));
-//        System.out.println(String.format("postfix notation for %s : %s",
-//                " ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4",
-//                convertToPostFix(parseExpr(" 4 * ( 3 - 2 ) ) ** -2 "))));
+        System.out.println(String.format("%s evaluated as %.4f", " 5 * -2",
+                eval(" 5 * -2")));
+        System.out.println(String.format("postfix notation for %s : %s", "( 4 + -2 ) * 7",
+                convertToPostFix(parseExpr("( 4 + -2 ) * 7"))));
+        System.out.println(String.format("%s evaluated as %.4f", "( 4 + -2 ) * 7",
+                eval("( 4 + -2 ) * 7")));
+        System.out.println(String.format("postfix notation for %s : %s", " 4 * ( 3 - 2 ) ) ** -2 ",
+                convertToPostFix(parseExpr(" 4 * ( 3 - 2 ) ) ** -2 "))));
+        System.out.println(String.format("%s evaluated as %.4f", " 4 * ( 3 - 2 ) ) ** -2",
+                eval(" 4 * ( 3 - 2 ) ) ** -2")));
+        System.out.println(String.format("postfix notation for %s : %s",
+                " ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4",
+                convertToPostFix(parseExpr(" 4 * ( 3 - 2 ) ) ** -2 "))));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f",
                 "1.5 2.1 + 2 ** 7 - -1.4 *",
                 postFixEval(parseExpr("1.5 2.1 + 2 ** 7 - -1.4 *"))));
-//        System.out.println(String.format("%s evaluated as %.4f",
-//                " ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4",
-//                eval(" ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4")));
+        System.out.println(String.format("%s evaluated as %.4f",
+                " ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4",
+                eval(" ( ( 1.5 + 2.1 ) ** 2  - 7 ) * -1.4")));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f", "4 -2 7 * +",
                 postFixEval(parseExpr("4 -2 7 * +"))));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f", "3.5 2 3 + /",
                 postFixEval(parseExpr("3.5 2 3 + /"))));
-//        System.out.println(String.format("%s evaluated as %.4f", "3.5 / ( 2 + 3 )",
-//                eval("3.5 / ( 2 + 3 )")));
-//        System.out.println(String.format("postfix notation for %s : %s", "2 ** 3 ** 2",
-//                convertToPostFix(parseExpr("2 ** 3 ** 2"))));
-//        System.out.println(String.format("%s evaluated as %.4f", "2 ** 3 ** 2",
-//                eval("2 ** 3 ** 2")));
+        System.out.println(String.format("%s evaluated as %.4f", "3.5 / ( 2 + 3 )",
+                eval("3.5 / ( 2 + 3 )")));
+        System.out.println(String.format("postfix notation for %s : %s", "2 ** 3 ** 2",
+                convertToPostFix(parseExpr("2 ** 3 ** 2"))));
+        System.out.println(String.format("%s evaluated as %.4f", "2 ** 3 ** 2",
+                eval("2 ** 3 ** 2")));
         try {
             System.out.println(String.format("postfix expr. %s evaluated as %.4f", "2 2.5 + 3 4 *",
                     postFixEval(parseExpr("2 2.5 + 3 4 *"))));
