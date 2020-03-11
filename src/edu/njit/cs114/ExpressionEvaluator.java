@@ -67,7 +67,7 @@ public class ExpressionEvaluator {
                     case CLOSEDPAR:
                         while (!stack.isEmpty() && stack.peek() != OPENPAR) // add all operators to the result
                             result.push(stack.pop());
-                        if (!stack.isEmpty() && stack.peek() != OPENPAR)
+                        if (stack.isEmpty() || stack.peek() != OPENPAR)
                             throw new Exception("Unbalanced parenthesis in infix expression");
                         else
                             stack.pop(); // Pop the open parenthesis off the operator stack
@@ -111,37 +111,9 @@ public class ExpressionEvaluator {
                 if (x == null || y == null)
                     throw new Exception("Invalid operands");
 
-                OperandToken newToken = null;
-                switch ((OperatorToken) token) {
-                    // Exponent y^x
-                    case EXP:
-                        newToken = new OperandToken(Math.pow(y.getValue(), x.getValue()));
-                        break;
-                    // Multiplication - y * x
-                    case MULTIPLY:
-                        newToken = new OperandToken(y.getValue() * x.getValue());
-                        break;
-                    // Division - y / x
-                    case DIVIDE:
-                        newToken = new OperandToken(y.getValue() / x.getValue());
-                        break;
-                    // Subtraction - y - x
-                    case SUBTRACT:
-                        newToken = new OperandToken(y.getValue() - x.getValue());
-                        break;
-                    // Addition - y + x
-                    case ADD:
-                        newToken = new OperandToken(y.getValue() + x.getValue());
-                        break;
-                    // Default - throw error
-                    case OPENPAR:
-                    case CLOSEDPAR:
-                    default:
-                        throw new Exception("Operator token " + ((OperatorToken) token).symbol + " not allowed for postfix evaluation");
-                }
-
-                stack.push(newToken); // Add result operand to the stack
-            }
+                stack.push(evaluate((OperatorToken) token, x, y)); // Add result operand to the stack
+            } else
+                throw new Exception("Invalid expression");
         }
 
         if (stack.size() != 1)
@@ -174,10 +146,99 @@ public class ExpressionEvaluator {
      */
     public static double evalDirect(String str) throws Exception {
         List<ExpressionToken> tokens = parseExpr(str);
-        /**
-         * For extra credit only!!
-         */
-        return 0;
+
+        Stack<OperatorToken> operators = new Stack<>();
+        Stack<OperandToken> operands = new Stack<>();
+
+        for (ExpressionToken token : tokens) {
+            if (token instanceof OperandToken)
+                operands.push((OperandToken) token);
+            else if (token instanceof OperatorToken) {
+                switch ((OperatorToken) token) {
+                    case EXP:
+                    case MULTIPLY:
+                    case DIVIDE:
+                    case SUBTRACT:
+                    case ADD:
+                        while (!operators.isEmpty() && operators.peek().precedence >= ((OperatorToken) token).precedence) {  // Compare precedence and sort the operators
+                            if (operands.size() < 2)
+                                throw new Exception("Insufficient number of operands");
+                            OperandToken x = operands.pop();
+                            OperandToken y = operands.pop();
+                            if (x == null || y == null)
+                                throw new Exception("Invalid operands");
+
+                            operands.push(evaluate((OperatorToken) token, x, y)); // Add result operand to the stack
+                        }
+                    case OPENPAR:
+                        operators.push((OperatorToken) token); // put it onto the stack for use later
+                        break;
+                    case CLOSEDPAR:
+                        while (!operators.isEmpty() && operators.peek() != OPENPAR) {
+                            if (operands.size() < 2)
+                                throw new Exception("Insufficient number of operands");
+                            OperandToken x = operands.pop();
+                            OperandToken y = operands.pop();
+                            if (x == null || y == null)
+                                throw new Exception("Invalid operands");
+
+                            operands.push(evaluate((OperatorToken) token, x, y));
+                        }
+                        if (!operators.isEmpty() && operators.peek() != OPENPAR)
+                            throw new Exception("Unbalanced parenthesis in infix expression");
+                        else
+                            operators.pop(); // Pop the open parenthesis off the operator stack
+                        break;
+                    // Default - throw error
+                    default:
+                        throw new Exception("Operator token " + ((OperatorToken) token).symbol + " not allowed for postfix evaluation");
+                }
+            } else
+                throw new Exception("Invalid expression");
+        }
+
+        while (!operators.empty() && operands.size() >= 2) {
+            OperandToken x = operands.pop();
+            OperandToken y = operands.pop();
+            if (x == null || y == null)
+                throw new Exception("Invalid operands");
+
+            operands.push(evaluate(operators.pop(), x, y));
+        }
+
+        return operands.pop().getValue();
+    }
+
+    public static OperandToken evaluate(OperatorToken operator, OperandToken x, OperandToken y) throws Exception {
+        OperandToken newToken = null;
+        switch (operator) {
+            // Exponent y^x
+            case EXP:
+                newToken = new OperandToken(Math.pow(y.getValue(), x.getValue()));
+                break;
+            // Multiplication - y * x
+            case MULTIPLY:
+                newToken = new OperandToken(y.getValue() * x.getValue());
+                break;
+            // Division - y / x
+            case DIVIDE:
+                newToken = new OperandToken(y.getValue() / x.getValue());
+                break;
+            // Subtraction - y - x
+            case SUBTRACT:
+                newToken = new OperandToken(y.getValue() - x.getValue());
+                break;
+            // Addition - y + x
+            case ADD:
+                newToken = new OperandToken(y.getValue() + x.getValue());
+                break;
+            // Default - throw error
+            case OPENPAR:
+            case CLOSEDPAR:
+            default:
+                throw new Exception("Operator token " + ((OperatorToken) operator).symbol + " not allowed for postfix evaluation");
+        }
+        return newToken;
     }
 
     public static void main(String[] args) throws Exception {
@@ -187,8 +248,8 @@ public class ExpressionEvaluator {
             System.out.println(postFixEval(parseExpr(str)));
         }*/
         /** Uncomment lines below after you have finished the homework implementations **/
-//        System.out.println(String.format("postfix notation for %s : %s", "-6.5",
-//                convertToPostFix(parseExpr("-6.5"))));
+        System.out.println(String.format("postfix notation for %s : %s", "-6.5",
+                convertToPostFix(parseExpr("-6.5"))));
         System.out.println(String.format("postfix expr. %s evaluated as %.4f", "-6.5",
                 postFixEval(parseExpr("-6.5"))));
         System.out.println(String.format("%s evaluated as %.4f", "-6.5",
@@ -203,6 +264,7 @@ public class ExpressionEvaluator {
                 convertToPostFix(parseExpr("( 4 + -2 ) * 7"))));
         System.out.println(String.format("%s evaluated as %.4f", "( 4 + -2 ) * 7",
                 eval("( 4 + -2 ) * 7")));
+        // FYI, the below expression is invalid and will throw an unbalanced parenthesis exception...
         System.out.println(String.format("postfix notation for %s : %s", " 4 * ( 3 - 2 ) ) ** -2 ",
                 convertToPostFix(parseExpr(" 4 * ( 3 - 2 ) ) ** -2 "))));
         System.out.println(String.format("%s evaluated as %.4f", " 4 * ( 3 - 2 ) ) ** -2",
