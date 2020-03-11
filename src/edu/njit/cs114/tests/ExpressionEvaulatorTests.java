@@ -180,7 +180,7 @@ public class ExpressionEvaulatorTests extends UnitTests {
         }
     }
 
-    //@Test
+    @Test
     public void testEvalDirect1() {
         try {
             assertEquals(ExpressionEvaluator.evalDirect("( 2 + 6 ) * ( 3 - 5 )"), -16);
@@ -191,7 +191,7 @@ public class ExpressionEvaulatorTests extends UnitTests {
         }
     }
 
-    //@Test
+    @Test
     public void testEvalDirect2() {
         try {
             assertTrue(approxEquals(ExpressionEvaluator.evalDirect("( 2 + ( 6 / ( -3.5 ** 2 ) ) -  4 * 5 )"),

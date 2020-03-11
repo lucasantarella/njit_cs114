@@ -160,7 +160,7 @@ public class ExpressionEvaluator {
                     case DIVIDE:
                     case SUBTRACT:
                     case ADD:
-                        while (!operators.isEmpty() && operators.peek().precedence >= ((OperatorToken) token).precedence) {  // Compare precedence and sort the operators
+                        while (!operators.isEmpty() && operators.peek() != OPENPAR && operators.peek().precedence >= ((OperatorToken) token).precedence) {  // Compare precedence and sort the operators
                             if (operands.size() < 2)
                                 throw new Exception("Insufficient number of operands");
                             OperandToken x = operands.pop();
@@ -168,8 +168,10 @@ public class ExpressionEvaluator {
                             if (x == null || y == null)
                                 throw new Exception("Invalid operands");
 
-                            operands.push(evaluate((OperatorToken) token, x, y)); // Add result operand to the stack
+                            operands.push(evaluate(operators.pop(), x, y)); // Add result operand to the stack
                         }
+                        operators.push((OperatorToken) token);
+                        break;
                     case OPENPAR:
                         operators.push((OperatorToken) token); // put it onto the stack for use later
                         break;
@@ -182,7 +184,7 @@ public class ExpressionEvaluator {
                             if (x == null || y == null)
                                 throw new Exception("Invalid operands");
 
-                            operands.push(evaluate((OperatorToken) token, x, y));
+                            operands.push(evaluate(operators.pop(), x, y));
                         }
                         if (!operators.isEmpty() && operators.peek() != OPENPAR)
                             throw new Exception("Unbalanced parenthesis in infix expression");
