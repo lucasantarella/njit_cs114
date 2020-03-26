@@ -104,7 +104,7 @@ public class AnagramFinderHashTableImpl extends AbstractAnagramFinder {
         long startTime = System.nanoTime();
         int nWords = 0;
         try {
-            nWords = finder.processDictionary("/home/lucasantarella/git/njit_cs114/src/edu/njit/cs114/words.txt");
+            nWords = finder.processDictionary("words.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
