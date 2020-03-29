@@ -53,8 +53,9 @@ public class AnagramFinderListImpl extends AbstractAnagramFinder {
 
     @Override
     public List<List<String>> getMostAnagrams() {
-        Collections.sort(wordArrList);
-        ArrayList<List<String>> mostAnagramsList = new ArrayList<>();
+        Collections.sort(wordArrList); // Why is this necessary?
+        ArrayList<List<String>> allAnagramsList = new ArrayList<>();
+
         /**
          * To be completed
          * Repeatedly do this:
@@ -63,7 +64,47 @@ public class AnagramFinderListImpl extends AbstractAnagramFinder {
          *      if there are no anagrams, single word forms a group
          * (c) remove these words from wordArrList
          */
-        return mostAnagramsList;
+
+        for (WordArrPair pair : this.wordArrList) {
+            List<String> anagramList = null;
+            for (List<String> list : allAnagramsList) {
+                if (list.size() > 0 &&
+                        (new WordArrPair(list.get(0))).isAnagram(pair)
+                ) { // Maybe a redundant check, but will prevent index out of bounds in all case
+                    anagramList = list;
+                    break;
+                }
+            }
+
+            if (anagramList != null) {
+                anagramList.add(pair.word);
+            } else {
+                anagramList = new ArrayList<>();
+                anagramList.add(pair.word);
+                allAnagramsList.add(anagramList);
+            }
+
+            // wordArrList.remove(pair); // Not sure why this is necessary?
+        }
+
+        // Determine the most
+        int hightestCount = 0;
+        HashMap<Integer, List<List<String>>> groups = new HashMap<>();
+
+        for (List<String> anagrams : allAnagramsList) {
+            if (anagrams.size() > hightestCount)
+                hightestCount = anagrams.size();
+
+            if(groups.containsKey(anagrams.size()))
+                groups.get(anagrams.size()).add(anagrams);
+            else {
+                List<List<String>> group = new ArrayList<>();
+                group.add(anagrams);
+                groups.put(anagrams.size(), group);
+            }
+        }
+
+        return groups.get(hightestCount);
     }
 
     public static void main(String[] args) {
@@ -72,7 +113,7 @@ public class AnagramFinderListImpl extends AbstractAnagramFinder {
         long startTime = System.nanoTime();
         int nWords = 0;
         try {
-            nWords = finder.processDictionary("words.txt");
+            nWords = finder.processDictionary("/home/lucasantarella/git/njit_cs114/src/edu/njit/cs114/words.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
