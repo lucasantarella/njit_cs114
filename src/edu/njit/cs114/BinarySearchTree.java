@@ -6,12 +6,12 @@ import java.util.*;
  * Author: Ravi Varadarajan
  * Date created: 3/31/20
  */
-public class BinarySearchTree<K extends Comparable<K>,V> {
+public class BinarySearchTree<K extends Comparable<K>, V> {
 
-    private BSTNode<K,V> root;
+    private BSTNode<K, V> root;
     private int size;
 
-    private static class BSTNode<K extends Comparable<K>,V> implements BinTreeNode<K,V> {
+    private static class BSTNode<K extends Comparable<K>, V> implements BinTreeNode<K, V> {
 
         private K key;
         private V value;
@@ -25,9 +25,11 @@ public class BinarySearchTree<K extends Comparable<K>,V> {
             this.value = value;
             this.left = left;
             this.right = right;
-            /**
-             * Complete code to store height and size
-             */
+
+            if (left == null && right == null)
+                this.height = 1;
+            else
+                this.height = 1 + (Math.max((left == null ? 0 : left.height), (right == null ? 0 : right.height)));
         }
 
         public BSTNode(K key, V value) {
@@ -69,33 +71,30 @@ public class BinarySearchTree<K extends Comparable<K>,V> {
 
         /**
          * Returns height of left subtree - height of right subtree
+         *
          * @return
          */
         @Override
         public int balanceFactor() {
-            /**
-             * Complete code
-             *
-             */
-            return 0;
+            return (this.left == null ? 0 : this.left.height) - (this.right == null ? 0 : this.right.height);
         }
 
 
-        private void copy(BSTNode<K,V> node) {
+        private void copy(BSTNode<K, V> node) {
             this.key = node.key;
-            this.value = value;
+            this.value = node.value;
         }
     }
 
 
-    public BSTNode<K,V> getRoot() {
+    public BSTNode<K, V> getRoot() {
         return root;
     }
 
-    public BSTNode<K,V> insertAux(BSTNode<K,V> localRoot, K key, V value) {
+    public BSTNode<K, V> insertAux(BSTNode<K, V> localRoot, K key, V value) {
         if (localRoot == null) {
             size++;
-            return new BSTNode<K,V>(key, value);
+            return new BSTNode<K, V>(key, value);
         }
         int result = key.compareTo(localRoot.key);
         if (result < 0) {
@@ -103,9 +102,12 @@ public class BinarySearchTree<K extends Comparable<K>,V> {
         } else {
             localRoot.setRightChild(insertAux(localRoot.right, key, value));
         }
-        /**
-         * Complete code to set height of localRoot
-         */
+
+        if (localRoot.left == null && localRoot.right == null)
+            localRoot.height = 1;
+        else
+            localRoot.height = 1 + (Math.max((localRoot.left == null ? 0 : localRoot.left.height), (localRoot.right == null ? 0 : localRoot.right.height)));
+
         return localRoot;
     }
 
@@ -121,16 +123,22 @@ public class BinarySearchTree<K extends Comparable<K>,V> {
         return size;
     }
 
-    private boolean isBalanced(BSTNode<K,V> localRoot) {
-        /**
-         * Complete code here
-         */
-         return false;
+    private boolean isBalanced(BSTNode<K, V> localRoot) {
+        if (localRoot == null)
+            return true; // base case
+
+        if (Math.abs((localRoot.left == null ? 0 : localRoot.left.height) - (localRoot.right == null ? 0 : localRoot.right.height)) <= 1
+                && isBalanced(localRoot.left)
+                && isBalanced(localRoot.right))
+            return true;
+
+        return false;
     }
 
     /**
      * Is the tree balanced ?
      * For every node, height of left and right subtrees differ by at most 1
+     *
      * @return
      */
     public boolean isBalanced() {
@@ -139,57 +147,78 @@ public class BinarySearchTree<K extends Comparable<K>,V> {
 
     /**
      * Get level ordering of nodes
+     *
      * @return a map which associates a level with list of nodes at that level
      */
-    public Map<Integer, List<BSTNode<K,V>>> getNodeLevels() {
-        Map<Integer, List<BSTNode<K,V>>> nodeLevels = new HashMap<>();
-        /**
-         * To be completed
-         */
-        return nodeLevels;
+    public Map<Integer, List<BSTNode<K, V>>> getNodeLevels() {
+        return getNodeLevels(new HashMap<>(), 0, this.root); // recursive def
+    }
+
+    /**
+     * @param map
+     * @param level
+     * @param node
+     * @return
+     */
+    public Map<Integer, List<BSTNode<K, V>>> getNodeLevels(Map<Integer, List<BSTNode<K, V>>> nodeLevels, int level, BSTNode<K, V> node) {
+        if (node == null)
+            return nodeLevels; // nothing to do
+
+        // check for list existence already
+        if (nodeLevels.containsKey(level)) {
+            nodeLevels.get(level).add(node);
+        } else {
+            List<BSTNode<K, V>> nodes = new ArrayList<>();
+            nodes.add(node);
+            nodeLevels.put(level, nodes);
+        }
+
+        nodeLevels.putAll(getNodeLevels(nodeLevels, level + 1, node.left)); // add all the keys from the left
+        nodeLevels.putAll(getNodeLevels(nodeLevels, level + 1, node.right)); // add all the keys from the right
+        return nodeLevels; // return the combo
     }
 
 
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         BinarySearchTree<Integer, Integer> bst = new BinarySearchTree<>();
-        bst.insert(25,25);
-        bst.insert(10,10);
-        bst.insert(30,30);
-        bst.insert(5,5);
-        bst.insert(28,28);
-        bst.insert(35,35);
-        bst.insert(40,40);
-        bst.insert(8,8);
-        bst.insert(50,50);
-        new BinTreeInOrderNavigator<Integer,Integer>().visit(bst.root);
+        bst.insert(25, 25);
+        bst.insert(10, 10);
+        bst.insert(30, 30);
+        bst.insert(5, 5);
+        bst.insert(28, 28);
+        bst.insert(35, 35);
+        bst.insert(40, 40);
+        bst.insert(8, 8);
+        bst.insert(50, 50);
+        new BinTreeInOrderNavigator<Integer, Integer>().visit(bst.root);
         System.out.println("size of bst=" + bst.size());
         System.out.println("height of bst=" + bst.height());
         System.out.println("Is bst an AVL tree ? " + bst.isBalanced());
-        Map<Integer, List<BSTNode<Integer,Integer>>> nodeLevels = bst.getNodeLevels();
+        Map<Integer, List<BSTNode<Integer, Integer>>> nodeLevels = bst.getNodeLevels();
         for (int level : nodeLevels.keySet()) {
             System.out.print("Keys at level " + level + " :");
-            for (BSTNode<Integer,Integer> node : nodeLevels.get(level)) {
+            for (BSTNode<Integer, Integer> node : nodeLevels.get(level)) {
                 System.out.print(" " + node.getKey());
             }
             System.out.println("");
         }
         BinarySearchTree<Integer, Integer> bst1 = new BinarySearchTree<>();
-        bst1.insert(44,1);
-        bst1.insert(17,1);
-        bst1.insert(78,1);
-        bst1.insert(50,1);
-        bst1.insert(62,1);
-        bst1.insert(88,1);
-        bst1.insert(48,1);
-        bst1.insert(32,1);
-        new BinTreeInOrderNavigator<Integer,Integer>().visit(bst1.root);
+        bst1.insert(44, 1);
+        bst1.insert(17, 1);
+        bst1.insert(78, 1);
+        bst1.insert(50, 1);
+        bst1.insert(62, 1);
+        bst1.insert(88, 1);
+        bst1.insert(48, 1);
+        bst1.insert(32, 1);
+        new BinTreeInOrderNavigator<Integer, Integer>().visit(bst1.root);
         System.out.println("size of bst1=" + bst1.size());
         System.out.println("height of bst1=" + bst1.height());
         System.out.println("Is bst1 an AVL tree ? " + bst1.isBalanced());
         nodeLevels = bst1.getNodeLevels();
         for (int level : nodeLevels.keySet()) {
             System.out.print("Keys at level " + level + " :");
-            for (BSTNode<Integer,Integer> node : nodeLevels.get(level)) {
+            for (BSTNode<Integer, Integer> node : nodeLevels.get(level)) {
                 System.out.print(" " + node.getKey());
             }
             System.out.println("");
