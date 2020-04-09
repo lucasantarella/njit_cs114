@@ -165,7 +165,7 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
     }
 
     /**
-     * @param map
+     * @param nodeLevels
      * @param level
      * @param node
      * @return
@@ -191,27 +191,56 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
     /**
      * Return list of nodes whose keys are greater than or equal to key1
      * and smaller than or equal to key2
+     *
      * @param key1
      * @param key2
      * @return
      */
     public List<BSTNode<K, V>> getRange(K key1, K key2) {
-        /**
-         * Complete code for homework (define a recursive aux function to be calledfrom here)
-         */
-        return null;
+        return getRange(key1, key2, this.root);
+    }
+
+    /**
+     * @param key1
+     * @param key2
+     * @return
+     */
+    public List<BSTNode<K, V>> getRange(K key1, K key2, BSTNode<K, V> node) {
+        List<BSTNode<K, V>> nodeList = new ArrayList<>();
+
+        if (node == null) // base case
+            return nodeList;
+
+        if (node.key.compareTo(key1) > 0)
+            nodeList.addAll(getRange(key1, key2, node.left));
+
+        if (node.key.compareTo(key1) >= 0 && node.key.compareTo(key2) <= 0)
+            nodeList.add(node);
+
+        if (node.key.compareTo(key2) < 0)
+            nodeList.addAll(getRange(key1, key2, node.right));
+
+        return nodeList;
     }
 
     /**
      * Find number of keys smaller than or equal to the specified key
+     *
      * @param key
      * @return
      */
     public int rank(K key) {
-        /**
-         * Complete code for homework (define a recursive aux function to be calledfrom here)
-         */
-        return 0;
+        return rank(key, this.root);
+    }
+
+    public int rank(K key, BSTNode<K, V> node) {
+        if (node == null) // base case
+            return 0;
+
+        if (key.compareTo(node.key) < 0)
+            return rank(key, node.left) + rank(key, node.right);
+        else
+            return 1 + rank(key, node.left) + rank(key, node.right);
     }
 
     public static void main(String[] args) {
