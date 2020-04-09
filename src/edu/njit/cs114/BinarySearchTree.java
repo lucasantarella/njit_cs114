@@ -11,7 +11,7 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
     private BSTNode<K, V> root;
     private int size;
 
-    private static class BSTNode<K extends Comparable<K>, V> implements BinTreeNode<K, V> {
+    public static class BSTNode<K extends Comparable<K>, V> implements BinTreeNode<K, V> {
 
         private K key;
         private V value;
@@ -30,6 +30,11 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
                 this.height = 1;
             else
                 this.height = 1 + (Math.max((left == null ? 0 : left.height), (right == null ? 0 : right.height)));
+
+            if (left == null && right == null)
+                this.size = 1;
+            else
+                this.size = 1 + (left == null ? 0 : left.size) + (right == null ? 0 : right.size);
         }
 
         public BSTNode(K key, V value) {
@@ -108,6 +113,11 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
         else
             localRoot.height = 1 + (Math.max((localRoot.left == null ? 0 : localRoot.left.height), (localRoot.right == null ? 0 : localRoot.right.height)));
 
+        if (localRoot.left == null && localRoot.right == null)
+            localRoot.size = 1;
+        else
+            localRoot.size = 1 + (localRoot.left == null ? 0 : localRoot.left.size) + (localRoot.right == null ? 0 : localRoot.right.size);
+
         return localRoot;
     }
 
@@ -178,6 +188,31 @@ public class BinarySearchTree<K extends Comparable<K>, V> {
         return nodeLevels; // return the combo
     }
 
+    /**
+     * Return list of nodes whose keys are greater than or equal to key1
+     * and smaller than or equal to key2
+     * @param key1
+     * @param key2
+     * @return
+     */
+    public List<BSTNode<K, V>> getRange(K key1, K key2) {
+        /**
+         * Complete code for homework (define a recursive aux function to be calledfrom here)
+         */
+        return null;
+    }
+
+    /**
+     * Find number of keys smaller than or equal to the specified key
+     * @param key
+     * @return
+     */
+    public int rank(K key) {
+        /**
+         * Complete code for homework (define a recursive aux function to be calledfrom here)
+         */
+        return 0;
+    }
 
     public static void main(String[] args) {
         BinarySearchTree<Integer, Integer> bst = new BinarySearchTree<>();
