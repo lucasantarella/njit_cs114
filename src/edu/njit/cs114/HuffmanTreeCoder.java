@@ -11,9 +11,9 @@ public class HuffmanTreeCoder {
     private static final char INTERNAL_NODE_CHAR = (char) 0;
     private HuffmanTreeNode root;
     private final Comparator<HuffmanTreeNode> nodeComparator;
-    private Map<Character,String> charCodes = new HashMap<>();
+    private Map<Character, String> charCodes = new HashMap<>();
 
-    public static class HuffmanTreeNode implements BinTreeNode<Double,Character> {
+    public static class HuffmanTreeNode implements BinTreeNode<Double, Character> {
 
         private final double weight;
         private final char ch;
@@ -26,17 +26,17 @@ public class HuffmanTreeCoder {
             this.ch = ch;
             this.left = left;
             this.right = right;
-            height = 1 + Math.max(left == null ? 0 : left.height, right == null ? 0 :  right.height);
+            height = 1 + Math.max(left == null ? 0 : left.height, right == null ? 0 : right.height);
         }
 
         // used by leaf node which represents a character
         public HuffmanTreeNode(double weight, char ch) {
-            this(weight,ch,null,null);
+            this(weight, ch, null, null);
         }
 
         // used by internal node
-        public HuffmanTreeNode(double weight,HuffmanTreeNode left, HuffmanTreeNode right) {
-            this(weight,INTERNAL_NODE_CHAR,left,right);
+        public HuffmanTreeNode(double weight, HuffmanTreeNode left, HuffmanTreeNode right) {
+            this(weight, INTERNAL_NODE_CHAR, left, right);
         }
 
         @Override
@@ -70,12 +70,12 @@ public class HuffmanTreeCoder {
         }
     }
 
-    public HuffmanTreeCoder(Comparator<HuffmanTreeNode> comp, Map<Character,Double> freqMap) {
+    public HuffmanTreeCoder(Comparator<HuffmanTreeNode> comp, Map<Character, Double> freqMap) {
         this.nodeComparator = comp;
         buildTree(freqMap);
     }
 
-    public HuffmanTreeCoder(Map<Character,Double> freqMap) {
+    public HuffmanTreeCoder(Map<Character, Double> freqMap) {
         this(new HuffmanNodeComparator(), freqMap);
     }
 
@@ -92,36 +92,45 @@ public class HuffmanTreeCoder {
     /**
      * This procedure must be recursive to get full credit
      * Extract codes for the characters in the Huffman tree
+     *
      * @param node
      * @param prefix
      */
     private void encodeChars(HuffmanTreeNode node, String prefix) {
-        if (node == null) {
+        if (node == null)
             return;
+
+        if (node.isLeaf())
+            this.charCodes.put(node.ch, prefix);
+        else {
+            this.encodeChars(node.left, prefix + "0");
+            this.encodeChars(node.right, prefix + "1");
         }
-        /**
-         * Complete code for lab assignment
-         */
     }
 
-    public void buildTree(Map<Character,Double> freqMap) {
-        PriorityQueue<HuffmanTreeNode> queue = new PriorityQueue<HuffmanTreeNode>(this.nodeComparator);
+    public void buildTree(Map<Character, Double> freqMap) {
+        PriorityQueue<HuffmanTreeNode> queue = new PriorityQueue<>(this.nodeComparator);
 
         // insert all leaf nodes
-        for (Map.Entry<Character,Double> entry : freqMap.entrySet()) {
-            /**
-             * Complete code here for lab assignment
-             */
+        for (Map.Entry<Character, Double> entry : freqMap.entrySet())
+            queue.add(new HuffmanTreeNode(entry.getValue(), entry.getKey()));
+
+        while (!queue.isEmpty()) {
+            HuffmanTreeNode left = queue.poll();
+            HuffmanTreeNode right = queue.poll();
+            if (right != null) {
+                HuffmanTreeNode node = new HuffmanTreeNode(left.getKey() + right.getKey(), left, right);
+                this.root = node;
+                queue.add(node);
+            } else
+                break;
         }
-        /**
-         * complete code here for lab assignment
-         */
-        encodeChars(root,"");
+        encodeChars(root, "");
     }
 
     public String encodeBitString(String str) {
         StringBuilder builder = new StringBuilder();
-        for (int i=0; i < str.length(); i++) {
+        for (int i = 0; i < str.length(); i++) {
             builder.append(charCodes.get(str.charAt(i)));
         }
         return builder.toString();
@@ -143,8 +152,8 @@ public class HuffmanTreeCoder {
     }
 
 
-    public static void main(String [] args) throws Exception {
-        Map<Character,Double> freqMap = new HashMap<>();
+    public static void main(String[] args) throws Exception {
+        Map<Character, Double> freqMap = new HashMap<>();
         freqMap.put('C', 32d);
         freqMap.put('D', 42d);
         freqMap.put('E', 120d);
@@ -157,12 +166,12 @@ public class HuffmanTreeCoder {
         System.out.println(coder.toString());
         String msg = "MUZZ";
         String bitStr = coder.encodeBitString(msg);
-        float compressionRatio = ((float) msg.length()*8) / bitStr.length();
-        System.out.println("compression ratio for msg: "+msg+" = "+compressionRatio);
+        float compressionRatio = ((float) msg.length() * 8) / bitStr.length();
+        System.out.println("compression ratio for msg: " + msg + " = " + compressionRatio);
         //String val = coder.decodeBitString(bitStr);
         //System.out.println("Decoded message = " +val);
         freqMap = new HashMap<>();
-        int [] freqArr = new int [] {64, 13, 22, 32, 103, 21, 15, 47, 57, 1, 5, 32, 20, 57, 63, 15,
+        int[] freqArr = new int[]{64, 13, 22, 32, 103, 21, 15, 47, 57, 1, 5, 32, 20, 57, 63, 15,
                 1, 48, 51, 80, 23, 8, 18, 1, 16, 1, 186};
         for (int i = (int) 'a'; i < (int) 'z'; i++) {
             freqMap.put((char) i, (double) freqArr[i - (int) 'a']);
@@ -172,8 +181,8 @@ public class HuffmanTreeCoder {
         //System.out.println(coder.toString());
         msg = "you want to build a custom huffman tree for a particular file";
         bitStr = coder.encodeBitString(msg);
-        compressionRatio = ((float) msg.length()*8) / bitStr.length();
-        System.out.println("compression ratio for msg: "+msg+" = "+compressionRatio);
+        compressionRatio = ((float) msg.length() * 8) / bitStr.length();
+        System.out.println("compression ratio for msg: " + msg + " = " + compressionRatio);
         //val = coder.decodeBitString(bitStr);
         //System.out.println("Decoded message = " +val);
     }
