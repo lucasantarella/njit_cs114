@@ -2,6 +2,7 @@ package edu.njit.cs114;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.Reader;
 import java.util.*;
 
 /**
@@ -139,11 +140,56 @@ public class HuffmanTreeCoder {
     }
 
 
+    public String decodeBitString(Reader rdr) throws Exception {
+        StringBuilder builder = new StringBuilder();
+        char[] buf = new char[1024];
+        HuffmanTreeNode node = root;
+        int nCharsRead = 0;
+        while ((nCharsRead = rdr.read(buf)) > 0) {
+            /**
+             * Complete code
+             * each character read in buf, check if it is a '0' or '1'. Based on that,
+             * set node to left child or right child.
+             * If it is leaf, append character to builder and reset node to root
+             */
+            for (int i = 0; i < nCharsRead; i++) {
+                if(buf[i] == '0')
+                    node = node.left;
+                else
+                    node = node.right;
+
+                if(node.left == null && node.right == null) {
+                    // this is a leaf
+                    builder.append(node.getValue());
+                    node = root;
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Decode the binary string encoded using this tree
+     * @param code
+     * @return
+     */
     public String decodeBitString(String code) {
-        /**
-         * Complete code for homework assignment
-         */
-        return null;
+        StringBuilder builder = new StringBuilder();
+        HuffmanTreeNode node = root;
+
+        for (Character c : code.toCharArray()) {
+            if(c == '0')
+                node = node.left;
+            else
+                node = node.right;
+
+            if(node.left == null && node.right == null) {
+                // this is a leaf
+                builder.append(node.getValue());
+                node = root;
+            }
+        }
+        return builder.toString();
     }
 
 
@@ -190,6 +236,7 @@ public class HuffmanTreeCoder {
 
     /**
      * Get frequency map for characters in a file
+     *
      * @param fileName
      * @return
      */
