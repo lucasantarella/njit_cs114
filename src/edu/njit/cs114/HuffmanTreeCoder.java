@@ -1,5 +1,7 @@
 package edu.njit.cs114;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.*;
 
 /**
@@ -151,6 +153,74 @@ public class HuffmanTreeCoder {
         return navigator.toString();
     }
 
+    /**
+     * Compress a text file
+     *
+     * @param fileName
+     * @param compressedFileName
+     */
+    public void compress(String fileName, String compressedFileName) {
+        FileReader rdr = null;
+        FileWriter writer = null;
+        try {
+            char[] charBuf = new char[1024];
+            rdr = new FileReader(fileName);
+            int nCharsRead = 0;
+            writer = new FileWriter(compressedFileName);
+            while ((nCharsRead = rdr.read(charBuf)) >= 0) {
+                writer.write(encodeBitString(new String(charBuf, 0, nCharsRead)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rdr != null) {
+                try {
+                    rdr.close();
+                } catch (Exception e) {
+                }
+            }
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Get frequency map for characters in a file
+     * @param fileName
+     * @return
+     */
+    public static Map<Character, Double> getFreqMap(String fileName) {
+        Map<Character, Double> freqMap = new HashMap<>();
+        FileReader rdr = null;
+        try {
+            char[] charBuf = new char[1024];
+            rdr = new FileReader(fileName);
+            int nCharsRead = 0;
+            while ((nCharsRead = rdr.read(charBuf)) >= 0) {
+                for (int i = 0; i < nCharsRead; i++) {
+                    Double freq = freqMap.get(charBuf[i]);
+                    if (freq == null) {
+                        freq = 0d;
+                    }
+                    freqMap.put(charBuf[i], ++freq);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rdr != null) {
+                try {
+                    rdr.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+        return freqMap;
+    }
 
     public static void main(String[] args) throws Exception {
         Map<Character, Double> freqMap = new HashMap<>();
