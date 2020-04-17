@@ -10,7 +10,7 @@ public class RelationalTable {
 
     private List<DataRow> rows = new ArrayList<>();
 
-    private final String [] columns;
+    private final String[] columns;
     private final String name;
 
     // row of the table
@@ -19,7 +19,7 @@ public class RelationalTable {
         private Map<String, Object> data = new HashMap<>();
 
         public Object setValue(String column, Object val) {
-            if (!isAColumn(column))  {
+            if (!isAColumn(column)) {
                 throw new IllegalArgumentException("Invalid column " + column);
             }
             return data.put(column, val);
@@ -34,10 +34,11 @@ public class RelationalTable {
 
         /**
          * Gets a subset of columns of the row add then to given row
+         *
          * @param row
          * @param columns
          */
-        public void project(DataRow row, String [] columns) {
+        public void project(DataRow row, String[] columns) {
             for (String col : columns) {
                 if (!isAColumn(col)) {
                     throw new IllegalArgumentException("Invalid column " + col);
@@ -101,7 +102,7 @@ public class RelationalTable {
 
         public RowComparator(String column1, String column2) {
             this.column1 = column1;
-            this.column2 =column2;
+            this.column2 = column2;
         }
 
         @Override
@@ -125,7 +126,7 @@ public class RelationalTable {
         }
     }
 
-    public RelationalTable(String name, String [] columns) {
+    public RelationalTable(String name, String[] columns) {
         this.name = name;
         this.columns = Arrays.copyOf(columns, columns.length);
     }
@@ -136,6 +137,7 @@ public class RelationalTable {
 
     /**
      * Add a row to the table
+     *
      * @param row
      */
     public void addRow(DataRow row) {
@@ -147,12 +149,12 @@ public class RelationalTable {
         return new RowIterator();
     }
 
-    public String [] columns() {
+    public String[] columns() {
         return Arrays.copyOf(this.columns, this.columns.length);
     }
 
     public boolean isAColumn(String column) {
-        for (int i=0; i < columns.length; i++) {
+        for (int i = 0; i < columns.length; i++) {
             if (columns[i].equals(column)) {
                 return true;
             }
@@ -170,12 +172,13 @@ public class RelationalTable {
 
     /**
      * Gets subset of columns of  the rows
+     *
      * @param name
      * @param columns
      * @return
      */
-    public RelationalTable project(String name, String [] columns) {
-        RelationalTable result =  new RelationalTable(name, columns );
+    public RelationalTable project(String name, String[] columns) {
+        RelationalTable result = new RelationalTable(name, columns);
         for (DataRow row : rows) {
             DataRow newRow = result.createEmptyRow();
             row.project(newRow, columns);
