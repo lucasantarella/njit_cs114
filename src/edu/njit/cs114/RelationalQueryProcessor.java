@@ -86,6 +86,112 @@ public class RelationalQueryProcessor {
 
 
     /**
+     * Joins table1 and table2 using the nested loop join columns specified in joinColumns
+     * NOTE : DO not sort rows !!!
+     *
+     * @param table1          left table (can have many rows with the same value in joinColumns[0] column
+     * @param table2          right table (assumed to have unique values in joinColumns[1] column
+     * @param alias1          alias to use for left table columns in the result
+     * @param alias2          alias to use for right table columns in the result
+     * @param joinColumns     joinColumns[0] use for left table and joinColumns[1] for right table
+     * @param resultTableName
+     * @return
+     */
+    public RelationalTable nestedLoopJoin(RelationalTable table1, RelationalTable table2,
+                                          String alias1, String alias2,
+                                          String[] joinColumns, String resultTableName) {
+        // Create an empty table for the result
+        RelationalTable joinTable = createJoinResultTable(resultTableName, table1,
+                table2, alias1, alias2);
+
+        RelationalTable.RowComparator comp =
+                new RelationalTable.RowComparator(joinColumns[0], joinColumns[1]);
+
+        Iterator<RelationalTable.DataRow> iter1 = table1.getRowIterator();
+        while (iter1.hasNext()) {
+            /**
+             * Complete code for homework
+             * Get row for table 1
+             * Get iterator for rows of table2 and loop through the rows of table 2
+             */
+            RelationalTable.DataRow row1 = iter1.next();
+
+            Iterator<RelationalTable.DataRow> iter2 = table2.getRowIterator();
+            while (iter2.hasNext()) {
+                RelationalTable.DataRow row2 = iter2.next();
+                if (comp.compare(row1, row2) == 0)
+                    joinTable.addRow(mergeRows(table1, table2, alias1, alias2, joinTable, row1, row2));
+            }
+        }
+        return joinTable;
+    }
+
+    public RelationalTable nestedLoopJoin(RelationalTable table1, RelationalTable table2,
+                                          String[] joinColumns, String resultTableName) {
+        return nestedLoopJoin(table1, table2, table1.name(), table2.name(), joinColumns,
+                resultTableName);
+    }
+
+    /**
+     * Joins using index join table1 and table2 using the join columns specified in joinColumns
+     *
+     * @param table1          left table (can have many rows with the same value in joinColumns[0] column
+     * @param table2          right table (assumed to have unique values in joinColumns[1] column
+     * @param alias1          alias to use for left table columns in the result
+     * @param alias2          alias to use for right table columns in the result
+     * @param joinColumns     joinColumns[0] use for left table and joinColumns[1] for right table
+     * @param resultTableName
+     * @return
+     */
+    public RelationalTable indexJoin(RelationalTable table1, RelationalTable table2,
+                                     String alias1, String alias2,
+                                     String[] joinColumns, String resultTableName) {
+        // Create an empty table for the result
+        RelationalTable joinTable = createJoinResultTable(resultTableName, table1,
+                table2, alias1, alias2);
+
+        RelationalTable.RowComparator comp =
+                new RelationalTable.RowComparator(joinColumns[0], joinColumns[1]);
+
+        Iterator<RelationalTable.DataRow> iter1 = table1.getIndexRowIterator(joinColumns[0]);
+        Iterator<RelationalTable.DataRow> iter2 = table2.getIndexRowIterator(joinColumns[1]);
+        /**
+         * Complete code for the homework assignment
+         * Note rows will be retrieved in sorted order (do not sort!!)
+         */
+
+        // initialize default values
+        RelationalTable.DataRow row1;
+        RelationalTable.DataRow row2 = null;
+        int compResult = -1;
+        while (iter1.hasNext()) {
+            row1 = iter1.next();
+
+            // compare the rows and determine if the second needs to be advanced
+            while (iter2.hasNext() && compResult < 0) {
+                row2 = iter2.next();
+                compResult = comp.compare(row1, row2);
+            }
+
+            // if they match, add the joined row
+            if (compResult == 0) {
+                joinTable.addRow(mergeRows(table1, table2, alias1, alias2, joinTable, row1, row2));
+            }
+
+            // if they dont, go to the next row
+            // compResult > 0
+        }
+
+        return joinTable;
+    }
+
+    public RelationalTable indexJoin(RelationalTable table1, RelationalTable table2,
+                                     String[] joinColumns, String resultTableName) {
+        return indexJoin(table1, table2, table1.name(), table2.name(), joinColumns,
+                resultTableName);
+    }
+
+    /**
      * Joins table1 and table2 using the join columns specified in joinColumns
      *
      * @param table1          left table (can have many rows with the same value in joinColumns[0] column
@@ -125,9 +231,9 @@ public class RelationalQueryProcessor {
             RelationalTable.DataRow row2 = rows2[j];
 
             int comp = comp3.compare(row1, row2);
-            if(comp < 0)
+            if (comp < 0)
                 i++;
-            else if(comp == 0) {
+            else if (comp == 0) {
                 joinTable.addRow(mergeRows(table1, table2, alias1, alias2, joinTable, row1, row2));
                 i++;
             } else {
