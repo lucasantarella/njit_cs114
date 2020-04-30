@@ -89,6 +89,56 @@ public class OrderStatistics {
         return kthSmallestRandomPivot(dataArr, 0, dataArr.length, k);
     }
 
+    public static int[] readIncomeData(String fileName) throws Exception {
+        BufferedReader rdr = null;
+        ArrayList<Integer> lst = new ArrayList<>();
+        try {
+            rdr = new BufferedReader(new FileReader(fileName));
+            String line = null;
+            while (((line = rdr.readLine())) != null) {
+                lst.add(Integer.parseInt(line.trim()));
+            }
+        } finally {
+            rdr.close();
+        }
+        int[] arr = new int[lst.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = lst.get(i);
+        }
+        return arr;
+    }
+
+
+
+    private static int kthSmallestRandomPivotIdx(int[] dataArr, int fromIndex, int toIndex, int k) {
+        // complete the code here
+
+        if (toIndex - fromIndex == 1) {
+            return dataArr[fromIndex];
+        }
+        int pivIndex = randomPartition(dataArr, fromIndex, toIndex);
+        int p = pivIndex - fromIndex + 1;
+        if (k < p) {
+            return kthSmallestRandomPivotIdx(dataArr, fromIndex, pivIndex, k);
+        } else if (k == p) {
+            return pivIndex;
+        } else {
+            return kthSmallestRandomPivotIdx(dataArr, pivIndex + 1, toIndex, k - p);
+        }
+
+    }
+
+    /**
+     * Find k-th smallest element using a random pivot
+     *
+     * @param dataArr
+     * @param k
+     * @return
+     */
+    public static int kthSmallestRandomPivotIdx(int[] dataArr, int k) {
+        return kthSmallestRandomPivotIdx(dataArr, 0, dataArr.length, k);
+    }
+
     /**
      * Find k closest values on either side of the median
      *
@@ -113,30 +163,15 @@ public class OrderStatistics {
          * (iii) All elements in the left sub array of this new partition gives the required values
          *   and return them in an array (do not sort!!)
          */
-        int pivot = kthSmallestRandomPivot(dataArr, medianIdx - k);
-        int pivot2 = kthSmallestRandomPivot(dataArr, pivot, dataArr.length - 1, 2 * k);
-        int partition = partition(dataArr, pivot, dataArr.length - 1, pivot2);
-        int[] result = Arrays.copyOf(dataArr, partition - 1);
-        return closestValues;
-    }
+        int pivot = kthSmallestRandomPivotIdx(dataArr, medianIdx - k);
+        partition(dataArr, 0, dataArr.length, pivot);
 
-    public static int[] readIncomeData(String fileName) throws Exception {
-        BufferedReader rdr = null;
-        ArrayList<Integer> lst = new ArrayList<>();
-        try {
-            rdr = new BufferedReader(new FileReader(fileName));
-            String line = null;
-            while (((line = rdr.readLine())) != null) {
-                lst.add(Integer.parseInt(line.trim()));
-            }
-        } finally {
-            rdr.close();
-        }
-        int[] arr = new int[lst.size()];
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = lst.get(i);
-        }
-        return arr;
+        int pivot2 = kthSmallestRandomPivotIdx(dataArr, pivot, dataArr.length, 2 * k);
+        partition(dataArr, pivot, dataArr.length, pivot2);
+
+        System.arraycopy(dataArr, pivot, closestValues, 0, 2 * k + 1);
+
+        return closestValues;
     }
 
     public static void main(String[] args) throws Exception {
