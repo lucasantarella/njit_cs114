@@ -32,7 +32,7 @@ public class OrderStatistics {
      * @param pivotElementIdx index of pivot element before partitioning
      * @return
      */
-    public static int partition(int[] dataArr, int fromIndex, int toIndex,
+    public static int partition(int [] dataArr, int fromIndex, int toIndex,
                                 int pivotElementIdx) {
         int low = fromIndex + 1;
         int high = toIndex - 1;
@@ -89,6 +89,37 @@ public class OrderStatistics {
         return kthSmallestRandomPivot(dataArr, 0, dataArr.length, k);
     }
 
+    /**
+     * Find k closest values on either side of the median
+     *
+     * @param dataArr
+     * @param k
+     * @return a total of 2k+1 values
+     */
+    public static int[] findClosestToMedian(int[] dataArr, int k) {
+        /**
+         * Complete code for homework
+         */
+        if (2 * k + 1 >= dataArr.length) {
+            throw new IllegalArgumentException("k is too large");
+        }
+        int[] closestValues = new int[2 * k + 1];
+        int medianIdx = (int) Math.ceil(dataArr.length / 2);
+        /**
+         * Complete code here
+         * (i) find first medianIdx-k th smallest element and then partition array on this value
+         * (ii) Find the 2k-th smallest in the right sub array of the partition
+         * (ii) Partition this right sub array on this value
+         * (iii) All elements in the left sub array of this new partition gives the required values
+         *   and return them in an array (do not sort!!)
+         */
+        int pivot = kthSmallestRandomPivot(dataArr, medianIdx - k);
+        int pivot2 = kthSmallestRandomPivot(dataArr, pivot, dataArr.length - 1, 2 * k);
+        int partition = partition(dataArr, pivot, dataArr.length - 1, pivot2);
+        int[] result = Arrays.copyOf(dataArr, partition - 1);
+        return closestValues;
+    }
+
     public static int[] readIncomeData(String fileName) throws Exception {
         BufferedReader rdr = null;
         ArrayList<Integer> lst = new ArrayList<>();
@@ -116,9 +147,13 @@ public class OrderStatistics {
         System.out.println("median value=" + medianVal); // should be 8
         int eighthSmallest = kthSmallestRandomPivot(arr, 8);
         System.out.println("eighthSmallest value=" + eighthSmallest); // should be 11
+        int[] closest = findClosestToMedian(arr, 2);
+        System.out.println("4 closest values to median = " + Arrays.toString(closest));
+        closest = findClosestToMedian(arr, 3);
+        System.out.println("6 closest values to median = " + Arrays.toString(closest));
         int[] incomes = readIncomeData("Incomes.txt");
         long startMillis = System.currentTimeMillis();
-        int medianIncome = kthSmallestRandomPivot(incomes, (int) Math.ceil(incomes.length / 2));
+        int medianIncome = kthSmallestRandomPivot(incomes, (int) Math.ceil(incomes.length / 2.0));
         long endMillis = System.currentTimeMillis();
         System.out.println("median income = " + medianIncome);
         System.out.println("Time(ms) for finding median using selection alg.:" + (endMillis - startMillis));
@@ -136,6 +171,11 @@ public class OrderStatistics {
         System.out.println("top one percent income = " +
                 incomes1[((int) (0.99 * incomes1.length)) - 1]);
         System.out.println("Time(ms) for finding median using sorting :" + (endMillis - startMillis));
+        incomes = readIncomeData("Incomes.txt");
+        startMillis = System.currentTimeMillis();
+        int[] closeToMedianIncomes = findClosestToMedian(incomes, 5000);
+        endMillis = System.currentTimeMillis();
+        System.out.println("Time(ms) for finding closest to median using selection alg. :" + (endMillis - startMillis));
     }
 }
 
