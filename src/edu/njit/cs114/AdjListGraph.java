@@ -39,6 +39,7 @@ public class AdjListGraph extends AbstractGraph {
          */
         if (getEdge(u, v) == null)
             adjLists[u].add(new Edge(u, v, weight));
+        else throw new IllegalArgumentException("edge already exists");
     }
 
     @Override
